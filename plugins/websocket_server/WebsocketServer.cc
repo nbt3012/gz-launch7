@@ -733,7 +733,14 @@ void WebsocketServer::OnMessage(int _socketId, const std::string _msg)
 
     std::vector<std::string> types;
     gz::msgs::Factory::Types(types);
-
+    std::set<std::string> s;
+    for(unsigned i = 0; i < types.size(); ++i)
+    {
+      auto type = types[i];
+      if (type.find("gz.msgs") != std::string::npos && std::count(type.begin(), type.end(), '.') < 3)	// Focus to 1st namespace start with gz.msgs only, to avoid dup
+        s.insert(type);
+    }
+    types.assign(s.begin(), s.end());
     // Get all the messages, and build a single proto to send to the client.
     for (auto const &type : types)
     {
